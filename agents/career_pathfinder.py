@@ -45,38 +45,39 @@ class CareerPathfinder(BaseAgent):
 
         # Return structured progression roadmap alongside raw text
         return {
-            "success": True,
-            "raw_analysis": roadmap_analysis,
-            "roadmap": {
-                "estimated_timeline": "12-18 Months",
-                "phases": [
-                    {
-                        "phase_number": 1,
-                        "title": "Foundation & Core Upskilling",
-                        "duration": "0-6 Months",
-                        "objectives": [
-                            f"Acquire primary technical stack required for {target_destination}",
-                            "Build 2 portfolio-grade projects illustrating foundational competency."
-                        ]
-                    },
-                    {
-                        "phase_number": 2,
-                        "title": "Bridging Experience",
-                        "duration": "6-12 Months",
-                        "objectives": [
-                            "Undertake cross-functional assignments in current organization.",
-                            "Acquire intermediate industry certifications."
-                        ]
-                    },
-                    {
-                        "phase_number": 3,
-                        "title": "Market Positioning & Target Application",
-                        "duration": "12-18 Months",
-                        "objectives": [
-                            f"Tailor professional profiles specifically to {target_destination} specifications.",
-                            "Initiate active applications and target networking campaigns."
-                        ]
-                    }
-                ]
-            }
+        "success": True,
+        "raw_analysis": roadmap_analysis,
+        "roadmap": {
+            "estimated_timeline": "12-18 Months",
+            "career_readiness_score": 72,
+            "phases": [
+                {
+                    "phase_number": 1,
+                    "title": "Foundation & Core Upskilling",
+                    "duration": "0-6 Months",
+                    "objectives": [
+                        f"Acquire primary technical stack required for {target_destination}",
+                        "Build 2 portfolio-grade projects illustrating foundational competency."
+                    ]
+                },
+                {
+                    "phase_number": 2,
+                    "title": "Bridging Experience",
+                    "duration": "6-12 Months",
+                    "objectives": [
+                        "Undertake cross-functional assignments in current organization.",
+                        "Acquire intermediate industry certifications."
+                    ]
+                },
+                {
+                    "phase_number": 3,
+                    "title": "Market Positioning & Target Application",
+                    "duration": "12-18 Months",
+                    "objectives": [
+                        f"Tailor professional profiles specifically to {target_destination} specifications.",
+                        "Initiate active applications and target networking campaigns."
+                    ]
+                }
+            ]
         }
+    }

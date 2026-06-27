@@ -54,8 +54,11 @@ h1, h2, h3, h4, h5, h6 {
 
 .aeterna-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(56, 189, 248, 0.3);
-    box-shadow: 0 12px 40px 0 rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.6);
+    box-shadow:
+        0 0 15px rgba(56, 189, 248, 0.6),
+        0 0 30px rgba(168, 85, 247, 0.4),
+        0 12px 40px 0 rgba(0, 0, 0, 0.4);
 }
 
 /* Card Header */

@@ -15,8 +15,14 @@ from utils.logger import configure_logger
 from frontend.components.sidebar import render_sidebar
 from frontend.pages.dashboard import render_dashboard_page
 from frontend.pages.resume_studio import render_resume_studio_page
-from frontend.pages.interview_prep import render_interview_prep_page
+from frontend.pages.career_discovery import render_career_discovery_page
 from frontend.pages.landing import render_landing_page
+from frontend.pages.career_planner import render_career_planner_page
+from frontend.pages.opportunities import render_opportunities_page
+from frontend.pages.reports import render_reports_page
+from frontend.pages.settings import render_settings_page
+from frontend.pages.chatbot import render_chatbot_page
+from frontend.components.cards import render_card
 
 # 2. Centralized Logger & Settings Initialization
 settings = get_settings()
@@ -62,12 +68,22 @@ def main() -> None:
             logger.info(f"Active navigation route: {active_page}")
             
             # Route to respective page modules
-            if active_page == "Dashboard":
+            if active_page == "Career Discovery":
+                render_career_discovery_page()
+            elif active_page == "Dashboard":
                 render_dashboard_page()
             elif active_page == "Resume Studio":
                 render_resume_studio_page()
-            elif active_page == "Interview Prep":
-                render_interview_prep_page()
+            elif active_page == "Career Planner":
+                render_career_planner_page()
+            elif active_page == "Opportunities":
+                render_opportunities_page()
+            elif active_page == "Chatbot":
+                render_chatbot_page()
+            elif active_page == "Reports":
+                render_reports_page()
+            elif active_page == "Settings":
+                render_settings_page()
             else:
                 logger.error(f"Unhandled page route: {active_page}")
                 st.error(f"Page '{active_page}' not found.")

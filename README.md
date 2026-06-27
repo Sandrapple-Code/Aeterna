@@ -1,6 +1,6 @@
 # Aeterna – The Career Operating System 🚀
 
-Powered by the **CareerForge Engine**, **Aeterna** is a production-ready, AI-powered career optimization and management suite. It serves as a comprehensive cockpit for job seekers, helping them optimize their resume, prepare for interviews with realistic AI-driven coaching, and chart their long-term career progression.
+Powered by the **CareerForge Engine**, **Aeterna** is a production-ready, AI-powered career optimization and management suite. It serves as a comprehensive cockpit for job seekers, helping them optimize their resume and chart their long-term career progression.
 
 ---
 
@@ -22,7 +22,6 @@ Aeterna/
 │   ├── __init__.py
 │   ├── base_agent.py       # Abstract base class for all agents
 │   ├── resume_optimizer.py # Resume analysis & tailored optimization agent
-│   ├── interview_coach.py  # Behavioral & technical mock interview agent
 │   └── career_pathfinder.py# Career transition & path mapping agent
 ├── services/               # Core business services & integration layer
 │   ├── __init__.py
@@ -38,7 +37,6 @@ Aeterna/
 │   ├── pages/              # Module-specific view templates
 │   │   ├── __init__.py
 │   │   ├── dashboard.py    # Main user cockpit
-│   │   ├── interview_prep.py# Mock interview practice console
 │   │   └── resume_studio.py# Tailoring studio
 │   └── styles/
 │       └── custom.css      # Premium typography, theme overrides, glassmorphism

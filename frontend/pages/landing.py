@@ -6,6 +6,10 @@ def render_landing_page() -> None:
     """
     Renders the Aeterna Premium Landing Page.
     """
+    # Initialize settings panel state
+    if "show_settings" not in st.session_state:
+        st.session_state.show_settings = False
+
     # Hero Section
     st.markdown("""
     <div style="text-align: center; padding: 80px 20px;">
@@ -22,40 +26,125 @@ def render_landing_page() -> None:
         <p style="font-size: 1rem; color: #cbd5e1; max-width: 800px; margin: 0 auto 40px; line-height: 1.7;">
             Discover the right career, identify your skill gaps, build personalized learning roadmaps, optimize your resume, and uncover real-world opportunities using specialized AI agents.
         </p>
-        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-            <button id="launch-btn" style="
-                background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
-                color: white;
-                border: none;
-                padding: 14px 32px;
-                border-radius: 12px;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                font-family: 'Outfit', sans-serif;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
-            ">
-                🚀 Launch Career Analysis
-            </button>
-            <button id="learn-btn" style="
-                background: rgba(30, 41, 59, 0.5);
-                color: #e2e8f0;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                padding: 14px 32px;
-                border-radius: 12px;
-                font-size: 1rem;
-                font-weight: 600;
-                cursor: pointer;
-                font-family: 'Outfit', sans-serif;
-                transition: all 0.3s ease;
-            ">
-                Learn More
-            </button>
-        </div>
         <p style="margin-top: 20px; color: #64748b; font-size: 0.9rem;">Discover. Plan. Achieve.</p>
     </div>
     """, unsafe_allow_html=True)
+
+    # Launch Button (primary CTA) - Centered, glassmorphism style
+    col1, col2, col3 = st.columns([1, 2, 1])
+
+    with col2:
+        # Custom CSS to turn the primary button into a blue-purple gradient
+        st.markdown(
+            """
+            <style>
+            button[kind="primary"] {
+                background: linear-gradient(90deg, #4F9DFF 0%, #A06CFF 100%);
+                border: none;
+                color: white;
+                transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+                box-shadow: 0 0 0 rgba(79, 157, 255, 0);
+            }
+            button[kind="primary"]:hover {
+                opacity: 0.95;
+                color: white;
+                transform: translateY(-3px) scale(1.03);
+                box-shadow:
+                     0 0 3px 2px rgba(79, 157, 255, 0.2),
+                     
+                     0 8px 20px rgba(0, 0, 0, 0.3);
+            }
+            button[kind="primary"]:active {
+                transform: translateY(-1px) scale(1.01);
+            }
+
+            /* Neon glow hover for cards (e.g. Career Match) — overrides external stylesheet */
+            .aeterna-card:hover {
+                transform: translateY(-4px) !important;    }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        
+        )
+        if st.button(
+            "🚀 Launch Career Analysis",
+            key="hero-launch",
+            type="primary",
+            use_container_width=True
+        ):
+            # Check if API key exists in session state
+            if not st.session_state.get("gemini_api_key"):
+                st.session_state.show_settings = True
+                st.rerun()
+            else:
+                st.session_state.current_page = "Career Discovery"
+                st.rerun()
+
+        # Settings Expandable Panel
+        if st.session_state.show_settings:
+            st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+            with st.expander("⚙️ Settings - Gemini API Configuration", expanded=True):
+                col1, col2 = st.columns([2, 1])
+                with col1:
+                    api_key = st.text_input(
+                        "Enter your Gemini API Key",
+                        type="password",
+                        placeholder="Enter your Gemini API Key",
+                        value=st.session_state.get("gemini_api_key", ""),
+                        help="Your API key is stored only in your session and never saved permanently"
+                    )
+
+                    if st.button("Validate API Key", type="primary", use_container_width=True):
+                        if api_key and len(api_key.strip()) > 0:
+                            st.session_state["gemini_api_key"] = api_key.strip()
+                            st.success("✅ API Key stored successfully in your current session!")
+                            st.session_state.show_settings = False
+                            st.rerun()
+                        else:
+                            st.error("Please enter a valid API key.")
+
+                with col2:
+                    render_card(
+                        title="Need an API Key?",
+                        body="""
+                        Get your free Gemini API key from Google AI Studio:
+                        <ol style="margin-top: 10px; padding-left: 20px;">
+                            <li style="margin-bottom: 8px;">Visit Google AI Studio</li>
+                            <li style="margin-bottom: 8px;">Sign in or create an account</li>
+                            <li style="margin-bottom: 8px;">Create a new API key</li>
+                            <li style="margin-bottom: 8px;">Copy and paste it here</li>
+                        </ol>
+                        """
+                    )
+                    st.markdown("""
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" style="text-decoration: none;">
+                        <button style="
+                            width: 100%;
+                            background: rgba(30, 41, 59, 0.5);
+                            color: #38bdf8;
+                            border: 1px solid rgba(56, 189, 248, 0.3);
+                            padding: 12px 20px;
+                            border-radius: 12px;
+                            font-size: 0.95rem;
+                            font-weight: 600;
+                            cursor: pointer;
+                            font-family: 'Outfit', sans-serif;
+                            transition: all 0.3s ease;
+                        ">
+                            🔗 Open Google AI Studio
+                        </button>
+                    </a>
+                    """, unsafe_allow_html=True)
+
+                render_card(
+                    title="🔒 Security Information",
+                    body="""
+                    <b>Important:</b> Your API keys are stored <b>only in your current browser session</b> and are never saved to disk or transmitted to any third-party servers except when making direct API calls to the respective AI services. When you close this tab or refresh the page, your API key will be cleared.
+                    """
+                )
+                if st.button("Close Settings", use_container_width=True):
+                    st.session_state.show_settings = False
+                    st.rerun()
 
     # About Aeterna Section
     st.markdown("<div style='height: 60px;'></div>", unsafe_allow_html=True)
@@ -65,11 +154,11 @@ def render_landing_page() -> None:
         <p style="color: #94a3b8; font-size: 1.05rem;">Your all-in-one career companion</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     render_card(
         title="For Everyone, Every Step of the Way",
         body="""
-        Aeterna is designed to help <b>students, graduates, working professionals, and career switchers</b> navigate their career journey with confidence. 
+        Aeterna is designed to help <b>students, graduates, working professionals, and career switchers</b> navigate their career journey with confidence.
         Our platform combines multiple AI agents working together to deliver personalized, actionable guidance tailored to your unique goals.
         """
     )
@@ -82,7 +171,7 @@ def render_landing_page() -> None:
         <p style="color: #94a3b8; font-size: 1.05rem;">Specialized agents working for your success</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     col1, col2 = st.columns(2)
     with col1:
         render_card(
@@ -111,7 +200,7 @@ def render_landing_page() -> None:
         <p style="color: #94a3b8; font-size: 1.05rem;">Your journey to career success in 6 simple steps</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     steps = [
         ("Tell us about yourself", "Step 1"),
         ("AI analyzes your profile", "Step 2"),
@@ -120,7 +209,7 @@ def render_landing_page() -> None:
         ("Discover Opportunities", "Step 5"),
         ("Download Your Career Report", "Step 6")
     ]
-    
+
     for i, (step_text, step_label) in enumerate(steps):
         st.markdown(f"""
         <div style="display: flex; align-items: center; gap: 20px; margin: 20px 0;">
@@ -157,7 +246,7 @@ def render_landing_page() -> None:
         <p style="color: #94a3b8; font-size: 1.05rem;">What sets us apart</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     features = [
         ("Personalized AI Guidance", "✅"),
         ("Multi-Agent Intelligence", "✅"),
@@ -166,7 +255,7 @@ def render_landing_page() -> None:
         ("Skill Gap Analysis", "✅"),
         ("Internship & Job Discovery", "✅")
     ]
-    
+
     col1, col2, col3 = st.columns(3)
     for i, (feature, icon) in enumerate(features):
         with [col1, col2, col3][i % 3]:
@@ -180,7 +269,7 @@ def render_landing_page() -> None:
         <p style="color: #94a3b8; font-size: 1.05rem;">Built with modern, powerful tools</p>
     </div>
     """, unsafe_allow_html=True)
-    
+
     techs = [
         "Python",
         "Streamlit",
@@ -189,7 +278,7 @@ def render_landing_page() -> None:
         "GitHub",
         "CareerForge Engine"
     ]
-    
+
     tech_cols = st.columns(len(techs))
     for i, tech in enumerate(techs):
         with tech_cols[i]:
@@ -208,9 +297,3 @@ def render_landing_page() -> None:
         <p style="color: #64748b; font-size: 0.9rem;">Built with AI to empower students and professionals.</p>
     </div>
     """, unsafe_allow_html=True)
-
-    # Handle button clicks
-    if st.button("🚀 Launch Career Analysis", key="hero-launch", help="Launch Career Analysis", type="primary", use_container_width=False):
-        st.session_state.current_page = "Dashboard"
-        st.rerun()
-

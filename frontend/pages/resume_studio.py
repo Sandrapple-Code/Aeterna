@@ -1,9 +1,5 @@
 import streamlit as st
 from frontend.components.cards import render_card
-from services.llm_service import LLMService
-from services.db_service import DBService
-from services.pdf_service import PDFService
-from agents.resume_optimizer import ResumeOptimizer
 
 def render_resume_studio_page() -> None:
     """
@@ -11,12 +7,93 @@ def render_resume_studio_page() -> None:
     Provides resume file parsing inputs, job description matching, 
     and downloads for AI-tailored PDFs.
     """
-    # Header
-    st.markdown('<div class="dashboard-title">Resume Studio</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="dashboard-subtitle">Tailor your resume perfectly for your dream job with the CareerForge Optimizer.</div>',
-        unsafe_allow_html=True
-    )
+    # Initialize settings panel state
+    if "show_settings" not in st.session_state:
+        st.session_state.show_settings = False
+        
+    # Header with Home button
+    col_home, col_title = st.columns([1, 5])
+    with col_home:
+        if st.button("🏠 Home", use_container_width=True):
+            st.session_state.current_page = "Landing"
+            st.rerun()
+            
+    with col_title:
+        st.markdown('<div class="dashboard-title">Resume Studio</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="dashboard-subtitle">Tailor your resume perfectly for your dream job</div>',
+            unsafe_allow_html=True
+        )
+        
+    # Settings button
+    if st.button("⚙️ Settings", use_container_width=False):
+        st.session_state.show_settings = not st.session_state.show_settings
+        st.rerun()
+        
+    # Settings Expandable Panel
+    if st.session_state.show_settings:
+        st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+        with st.expander("⚙️ Settings - Gemini API Configuration", expanded=True):
+            col1, col2 = st.columns([2, 1])
+            with col1:
+                api_key = st.text_input(
+                    "Enter your Gemini API Key",
+                    type="password",
+                    placeholder="Enter your Gemini API Key",
+                    value=st.session_state.get("gemini_api_key", ""),
+                    help="Your API key is stored only in your session and never saved permanently"
+                )
+                
+                if st.button("Validate API Key", type="primary", use_container_width=True):
+                    if api_key and len(api_key.strip()) > 0:
+                        st.session_state["gemini_api_key"] = api_key.strip()
+                        st.success("✅ API Key stored successfully in your current session!")
+                        st.session_state.show_settings = False
+                        st.rerun()
+                    else:
+                        st.error("Please enter a valid API key.")
+            
+            with col2:
+                render_card(
+                    title="Need an API Key?",
+                    body="""
+                    Get your free Gemini API key from Google AI Studio:
+                    <ol style="margin-top: 10px; padding-left: 20px;">
+                        <li style="margin-bottom: 8px;">Visit Google AI Studio</li>
+                        <li style="margin-bottom: 8px;">Sign in or create an account</li>
+                        <li style="margin-bottom: 8px;">Create a new API key</li>
+                        <li style="margin-bottom: 8px;">Copy and paste it here</li>
+                    </ol>
+                    """
+                )
+                st.markdown("""
+                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="text-decoration: none;">
+                    <button style="
+                        width: 100%;
+                        background: rgba(30, 41, 59, 0.5);
+                        color: #38bdf8;
+                        border: 1px solid rgba(56, 189, 248, 0.3);
+                        padding: 12px 20px;
+                        border-radius: 12px;
+                        font-size: 0.95rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        font-family: 'Outfit', sans-serif;
+                        transition: all 0.3s ease;
+                    ">
+                        🔗 Open Google AI Studio
+                    </button>
+                </a>
+                """, unsafe_allow_html=True)
+            
+            render_card(
+                title="🔒 Security Information",
+                body="""
+                <b>Important:</b> Your API keys are stored <b>only in your current browser session</b>.
+                """
+            )
+
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
 
     col1, col2 = st.columns([1, 1])
 
@@ -49,75 +126,4 @@ def render_resume_studio_page() -> None:
                 body="Transform passive resume descriptions into powerful, metrics-driven bullets following Google's XYZ formula."
             )
         else:
-            # When clicked, show loading state and stub outputs
-            with st.spinner("CareerForge Engine analyzing skills and matching criteria..."):
-                # Scaffold dependency injection
-                llm = LLMService()
-                db = DBService()
-                pdf = PDFService()
-                optimizer = ResumeOptimizer(llm, db)
-                
-                # Mock inputs for prompt processing
-                mock_input = {
-                    "resume_text": "Experienced Python Software Engineer with 5 years experience.",
-                    "job_description": job_desc if job_desc else "Requires senior software architect with expert Python, LLM orchestration and Streamlit experience."
-                }
-                
-                # Execute optimizer agent
-                result = optimizer.run(mock_input)
-                
-            if result.get("success"):
-                st.success("Analysis complete! Optimized resume generated.")
-                
-                # Display Match Score
-                match_score = result["structured_insights"]["match_score"]
-                st.metric("Tailored Job Fit Score", f"{match_score}%", delta="15% improvement")
-                
-                # Display Skill Gaps
-                st.markdown("### ⚠️ Critical Skill Gaps Detected")
-                for gap in result["structured_insights"]["skill_gaps_identified"]:
-                    st.markdown(f"- **{gap}** (Missing in uploaded profile)")
-                
-                # Display Suggested Bullet Points
-                st.markdown("### ✨ Suggested Tailored Bullet Points")
-                for bullet in result["structured_insights"]["optimized_bullets_suggested"]:
-                    st.info(bullet)
-                    
-                # Compile PDF Action
-                st.markdown("### 📄 Export Production Resume")
-                
-                # Render content compile
-                resume_content = f"""
-                John Doe
-                Senior Software Engineer
-                
-                ## Professional Summary
-                Tailored profile targeting modern AI/ML Full-Stack engineering roles.
-                
-                ## Key Experience Bullet Points
-                - {result["structured_insights"]["optimized_bullets_suggested"][0]}
-                - {result["structured_insights"]["optimized_bullets_suggested"][1]}
-                
-                ## Skills Matrix
-                Python, Streamlit, Pydantic, LLM Orchestration, Docker, Kubernetes, CI/CD, FastAPI, Kafka
-                """
-                
-                try:
-                    # Generate actual PDF via PDFService
-                    pdf_path = pdf.generate_resume_pdf("John Doe", resume_content, "optimized_resume_john_doe.pdf")
-                    
-                    with open(pdf_path, "rb") as f:
-                        st.download_button(
-                            label="📥 Download Tailored Resume PDF",
-                            data=f,
-                            file_name="Optimized_Resume_John_Doe.pdf",
-                            mime="application/pdf",
-                            use_container_width=True
-                        )
-                except Exception as e:
-                    st.error(f"Failed to generate download package: {e}")
-            else:
-                st.error(f"Optimization failed: {result.get('error')}")
-
-    # TODO: Connect actual PyPDF2/pdf plumbing to extract text from uploaded_file
-    # TODO: Connect actual structured LLM response mapping to save generated resume to DBService
+            st.info("Resume optimization is in development.")

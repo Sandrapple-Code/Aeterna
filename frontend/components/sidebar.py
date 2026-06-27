@@ -1,10 +1,15 @@
 import streamlit as st
+from frontend.components.cards import render_card
 
 def render_sidebar() -> str:
     """
     Renders a premium, customized navigation sidebar.
     Manages session state for page routing and returns the active page identifier.
     """
+    # Initialize settings panel state
+    if "show_settings" not in st.session_state:
+        st.session_state.show_settings = False
+        
     st.sidebar.markdown(
         """
         <div style="text-align: center; padding: 10px 0 20px 0;">
@@ -22,21 +27,31 @@ def render_sidebar() -> str:
         unsafe_allow_html=True
     )
 
+    # Home button
+    if st.sidebar.button("🏠 Home", use_container_width=True, type="secondary"):
+        st.session_state.current_page = "Landing"
+        st.rerun()
+
     # Initialize navigation state
     if "current_page" not in st.session_state:
         st.session_state.current_page = "Dashboard"
 
     # Navigation options
     pages = {
-        "Dashboard": "📊 Dashboard Cockpit",
-        "Resume Studio": "📝 Resume Optimizer",
-        "Interview Prep": "🎙️ Interview Coach"
+        "Dashboard": "📊 Dashboard",
+        "Career Discovery": "🧭 Career Discovery",
+        "Resume Studio": "📝 Resume Studio",
+        "Career Planner": "📚 Career Planner",
+        "Opportunities": "🌍 Opportunities",
+        "Chatbot": "💬 Chatbot",
+        "Reports": "📄 Reports",
+        "Settings": "⚙️ Settings"
     }
 
     st.sidebar.markdown(
         """
         <div style="color: #64748b; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; 
-                    letter-spacing: 0.05em; margin-bottom: 10px; padding-left: 10px;">
+                    letter-spacing: 0.05em; margin-bottom: 10px; padding-left: 10px; margin-top: 15px;">
             Core Modules
         </div>
         """,
@@ -47,9 +62,6 @@ def render_sidebar() -> str:
     for page_id, page_label in pages.items():
         is_active = st.session_state.current_page == page_id
         
-        # We can use streamlit's native button styled to look premium, 
-        # or use a session-state-backed button.
-        # Streamlit sidebar buttons are reliable and preserve state:
         button_type = "primary" if is_active else "secondary"
         if st.sidebar.button(page_label, key=f"nav_{page_id}", use_container_width=True, type=button_type):
             st.session_state.current_page = page_id

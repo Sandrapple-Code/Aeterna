@@ -137,3 +137,33 @@ class PDFService:
         except Exception as e:
             logger.error(f"Failed to generate career report PDF: {e}")
             raise e
+
+    def compile_full_report(self, analysis_result):
+        """
+        Compiles a full report from the pipeline analysis result
+        """
+        sections = []
+        
+        # Career Discovery section
+        discovery = analysis_result.get("discovery", {})
+        if discovery.get("success"):
+            rec_career = discovery.get("career_matches", {}).get("recommended_career", "Unknown")
+            sections.append({
+                "title": "Recommended Career",
+                "body": f"Your top recommended career path is: {rec_career}"
+            })
+        
+        # Career Planner section
+        planner = analysis_result.get("planner", {})
+        roadmap = planner.get("roadmap", {})
+        sections.append({
+            "title": "Estimated Timeline",
+            "body": roadmap.get("estimated_timeline", "12-18 Months")
+        })
+        
+        # Generate filename
+        import datetime
+        timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"aeterna_career_report_{timestamp}.pdf"
+        
+        return self.generate_career_report_pdf("Aeterna Career Report", sections, filename)
