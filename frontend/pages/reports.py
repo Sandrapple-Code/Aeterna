@@ -29,7 +29,7 @@ def render_reports_page() -> None:
     if generate_btn and analysis_generated:
         with st.spinner("Generating your personalized career report..."):
             pdf_service = PDFService()
-            pdf_path = pdf_service.compile_full_report(st.session_state.analysis_result)
+            pdf_path = pdf_service.compile_full_report(st.session_state.analysis_result, st.session_state.get("intake_data"))
             st.success("Report generated successfully!")
             st.rerun()
             

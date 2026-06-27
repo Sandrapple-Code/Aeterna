@@ -49,13 +49,22 @@ def render_settings_page() -> None:
         body=settings.database_url
     )
     
-    # Theme selector (disabled placeholder)
+    # Theme selector
     st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
     st.subheader("🎨 Theme")
-    st.selectbox(
-        "Theme (Coming Soon)",
-        ["Dark", "Light"],
-        index=0,
-        disabled=True,
-        help="Theme customization will be available in a future update"
+    
+    if "theme" not in st.session_state:
+        st.session_state.theme = "dark"
+        
+    theme_options = ["Dark", "Light"]
+    current_index = theme_options.index(st.session_state.theme.capitalize())
+    
+    selected_theme = st.selectbox(
+        "Select Theme Style",
+        theme_options,
+        index=current_index
     )
+    
+    if selected_theme.lower() != st.session_state.theme:
+        st.session_state.theme = selected_theme.lower()
+        st.rerun()

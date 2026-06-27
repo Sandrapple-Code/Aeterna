@@ -22,6 +22,7 @@ from frontend.pages.opportunities import render_opportunities_page
 from frontend.pages.reports import render_reports_page
 from frontend.pages.settings import render_settings_page
 from frontend.pages.chatbot import render_chatbot_page
+from frontend.pages.login import render_login_page
 from frontend.components.cards import render_card
 
 # 2. Centralized Logger & Settings Initialization
@@ -31,13 +32,63 @@ configure_logger(log_level=settings.log_level)
 # 3. Inject Premium Custom CSS
 def inject_custom_css() -> None:
     """
-    Reads custom.css and injects it into the Streamlit application body.
+    Reads custom.css and injects it into the Streamlit application body, supporting dark/light themes.
     """
     css_path = os.path.join("frontend", "styles", "custom.css")
     if os.path.exists(css_path):
         try:
             with open(css_path, "r", encoding="utf-8") as f:
                 css_content = f.read()
+            
+            # Inject gradient text utility class
+            gradient_text_css = """
+            .aeterna-gradient-text {
+                background: linear-gradient(135deg, #a855f7 0%, #38bdf8 100%) !important;
+                -webkit-background-clip: text !important;
+                -webkit-text-fill-color: transparent !important;
+                color: transparent !important;
+                display: inline-block;
+            }
+            """
+            css_content += gradient_text_css
+            
+            # Inject light mode override styles if selected
+            if st.session_state.get("theme", "dark") == "light":
+                light_css = """
+                .stApp {
+                    background: radial-gradient(circle at 10% 20%, #f8fafc 0%, #cbd5e1 90%) !important;
+                    color: #0f172a !important;
+                }
+                .aeterna-card {
+                    background: rgba(255, 255, 255, 0.8) !important;
+                    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+                    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05) !important;
+                }
+                .aeterna-card-header {
+                    color: #0f172a !important;
+                }
+                .aeterna-card-body {
+                    color: #334155 !important;
+                }
+                .dashboard-title {
+                    background: linear-gradient(135deg, #0284c7 0%, #7c3aed 100%) !important;
+                    -webkit-background-clip: text !important;
+                    -webkit-text-fill-color: transparent !important;
+                }
+                .dashboard-subtitle {
+                    color: #475569 !important;
+                }
+                /* Sidebar button overrides */
+                .nav-button {
+                    color: #475569 !important;
+                }
+                .nav-button:hover {
+                    color: #0284c7 !important;
+                    background: rgba(2, 132, 199, 0.08) !important;
+                }
+                """
+                css_content += light_css
+                
             st.markdown(f"<style>{css_content}</style>", unsafe_allow_html=True)
             logger.info("Custom premium stylesheet successfully injected.")
         except Exception as e:
@@ -54,6 +105,14 @@ def main() -> None:
     """
     logger.info("Main application loop execution started.")
     
+    # Enforce authentication
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
+        
+    if not st.session_state.logged_in:
+        render_login_page()
+        return
+        
     try:
         # Initialize landing page as default
         if "current_page" not in st.session_state:

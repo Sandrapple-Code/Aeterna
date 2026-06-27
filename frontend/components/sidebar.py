@@ -71,23 +71,32 @@ def render_sidebar() -> str:
     st.sidebar.markdown("<hr style='border-color: rgba(255, 255, 255, 0.08); margin: 20px 0;'>", unsafe_allow_html=True)
 
     # User Profile Widget at the bottom
+    username = st.session_state.get("username", "John Doe")
+    initials = "".join([part[0].upper() for part in username.split() if part])[:2]
+    if not initials:
+        initials = "JD"
+
     st.sidebar.markdown(
-        """
+        f"""
         <div style="background: rgba(30, 41, 59, 0.3); border: 1px solid rgba(255, 255, 255, 0.05); 
-                    border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-top: auto;">
+                    border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; margin-top: auto; margin-bottom: 10px;">
             <div style="width: 36px; height: 36px; border-radius: 50%; 
                         background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%); 
                         display: flex; align-items: center; justify-content: center; 
                         font-weight: 700; color: white; font-family: 'Outfit', sans-serif;">
-                JD
+                {initials}
             </div>
             <div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: #f8fafc; line-height: 1.2;">John Doe</div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: #f8fafc; line-height: 1.2;">{username}</div>
                 <div style="font-size: 0.7rem; color: #64748b; margin-top: 1px;">Premium Member</div>
             </div>
         </div>
         """,
         unsafe_allow_html=True
     )
+
+    if st.sidebar.button("🚪 Sign Out", key="sidebar_sign_out", use_container_width=True):
+        st.session_state.logged_in = False
+        st.rerun()
 
     return st.session_state.current_page

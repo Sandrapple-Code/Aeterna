@@ -108,12 +108,68 @@ def render_resume_studio_page() -> None:
         
         # Optimization Trigger Button
         optimize_clicked = st.button("🚀 Match & Optimize Resume", type="primary", use_container_width=True)
+        
+        if optimize_clicked:
+            if not uploaded_file or not job_desc:
+                st.error("Please upload a resume and provide a target job description.")
+            else:
+                with st.spinner("Optimizing your resume..."):
+                    from services.llm_service import LLMService
+                    from services.db_service import DBService
+                    from agents.resume_optimizer import ResumeOptimizer
+                    
+                    llm_service = LLMService()
+                    api_key = st.session_state.get("gemini_api_key")
+                    if api_key and "dummy" not in api_key.lower() and "mock" not in api_key.lower():
+                        from google import genai
+                        llm_service.client = genai.Client(api_key=api_key)
+                    db = DBService()
+                    agent = ResumeOptimizer(llm_service, db)
+                    from utils.pdf_extractor import extract_text_from_pdf
+                    resume_text = extract_text_from_pdf(uploaded_file)
+                    resume_res = agent.run({
+                        "resume_text": resume_text,
+                        "job_description": job_desc
+                    })
+                    
+                    if "analysis_result" not in st.session_state:
+                        st.session_state.analysis_result = {}
+                    st.session_state.analysis_result["resume"] = resume_res
+                    st.session_state.analysis_generated = True
+                    st.rerun()
 
     with col2:
         st.subheader("🎯 Optimization Insights")
 
-        # Mock / Placeholder State before optimization is clicked
-        if not optimize_clicked:
+        # Check if there is an existing resume optimization result
+        analysis_result = st.session_state.get("analysis_result")
+        resume_res = analysis_result.get("resume") if analysis_result else None
+        
+        if resume_res:
+            if not resume_res.get("success", False):
+                st.warning(resume_res.get("error", "Generation failed."))
+            else:
+                if resume_res.get("is_mock"):
+                    st.warning("⚠️ Running in Offline Mode: Gemini API rate limit or key restriction hit. Showing adaptive mock resume insights. Re-submit with a valid key for live parsing.")
+                insights = resume_res.get("structured_insights", {})
+                match_score = insights.get("match_score", 0)
+                st.metric("🎯 Resume Match Score", f"{match_score}%" if isinstance(match_score, (int, float)) else str(match_score))
+                
+                st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+                st.write("**🔍 Skill Gaps Identified:**")
+                for gap in insights.get("skill_gaps_identified", []):
+                    st.markdown(f"- {gap}")
+                    
+                st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+                st.write("**💎 Optimized Bullets Suggested (STAR/XYZ):**")
+                for bullet in insights.get("optimized_bullets_suggested", []):
+                    st.markdown(f"- {bullet}")
+                    
+                if resume_res.get("raw_analysis"):
+                    st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+                    with st.expander("📄 View Full Narrative Analysis"):
+                        st.write(resume_res.get("raw_analysis"))
+        else:
             st.info("Provide your resume and a target job description, then click 'Match & Optimize' to initiate the CareerForge Engine.")
             
             # Illustrative cards
@@ -125,5 +181,3 @@ def render_resume_studio_page() -> None:
                 title="💎 Professional Impact Formulas",
                 body="Transform passive resume descriptions into powerful, metrics-driven bullets following Google's XYZ formula."
             )
-        else:
-            st.info("Resume optimization is in development.")

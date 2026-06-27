@@ -15,6 +15,7 @@ from services.db_service import DBService
 from agents.career_discovery import CareerDiscoveryAgent
 from agents.resume_optimizer import ResumeOptimizer
 from agents.career_pathfinder import CareerPathfinder
+from agents.opportunity_agent import OpportunityAgent
 
 
 class MockCareerForgeEngine:
@@ -27,48 +28,59 @@ class MockCareerForgeEngine:
         discovery_agent = CareerDiscoveryAgent(self.llm, self.db)
         discovery_result = discovery_agent.run(user_input)
         
-        planner_agent = CareerPathfinder(self.llm, self.db)
-        planner_result = planner_agent.run({
-            "current_role": user_input.get("education", "Student"),
-            "target_destination": discovery_result.get("career_matches", {}).get("recommended_career", "Unknown"),
-            "skill_profile": user_input.get("skills", "")
-        })
-        
+        if not discovery_result.get("success", False):
+            return {
+                "discovery": discovery_result,
+                "planner": {
+                    "success": False,
+                    "error": "Upstream Career Discovery agent failed. Cannot generate roadmap.",
+                    "roadmap": None
+                },
+                "resume": {
+                    "success": False,
+                    "error": "Upstream Career Discovery agent failed. Cannot run resume optimization.",
+                    "structured_insights": None
+                } if resume_text else None,
+                "opportunities": {
+                    "success": False,
+                    "error": "Upstream Career Discovery agent failed. Cannot recommend opportunities.",
+                    "opportunities": None
+                }
+            }
+
+        recommended_career = discovery_result.get("career_matches", {}).get("recommended_career", "Unknown")
+
         resume_result = None
+        resume_gaps = []
         if resume_text:
             resume_agent = ResumeOptimizer(self.llm, self.db)
             resume_result = resume_agent.run({
                 "resume_text": resume_text,
-                "job_description": discovery_result.get("career_matches", {}).get("recommended_career", "")
+                "job_description": recommended_career
             })
+            if resume_result.get("success"):
+                resume_gaps = resume_result.get("structured_insights", {}).get("skill_gaps_identified", [])
         
-        # Mock opportunities
-        opportunities_result = {
-            "opportunities": {
-                "internships": [
-                    {"title": "Cloud Security Intern at TechCorp", "location": "Remote", "link": "#"},
-                    {"title": "DevOps Intern at StartupX", "location": "San Francisco", "link": "#"}
-                ],
-                "jobs": [
-                    {"title": "Junior Cloud Security Engineer", "location": "New York", "link": "#"},
-                    {"title": "DevOps Engineer (Entry Level)", "location": "Remote", "link": "#"},
-                    {"title": "Solutions Architect Associate", "location": "Austin", "link": "#"}
-                ],
-                "hackathons": [
-                    {"title": "Cloud Security Hackathon", "date": "2026-07-15", "link": "#"}
-                ],
-                "fellowships": [
-                    {"title": "Women in Tech Fellowship", "deadline": "2026-08-01", "link": "#"}
-                ],
-                "recommended_companies": ["TechCorp", "CloudInnovate", "SecureSystems"]
-            }
-        }
+        planner_agent = CareerPathfinder(self.llm, self.db)
+        planner_result = planner_agent.run({
+            "current_role": user_input.get("education", "Student"),
+            "target_destination": recommended_career,
+            "skill_profile": user_input.get("skills", ""),
+            "recommended_career": recommended_career,
+            "resume_skill_gaps": ", ".join(resume_gaps) if resume_gaps else ""
+        })
+
+        opportunity_agent = OpportunityAgent(self.llm, self.db)
+        opportunity_result = opportunity_agent.run({
+            "roadmap_summary": planner_result.get("raw_analysis", "") if planner_result and planner_result.get("success") else "",
+            "resume_summary": resume_result.get("raw_analysis", "") if resume_result and resume_result.get("success") else ""
+        })
         
         return {
             "discovery": discovery_result,
             "planner": planner_result,
             "resume": resume_result,
-            "opportunities": opportunities_result
+            "opportunities": opportunity_result
         }
 
 
@@ -81,6 +93,30 @@ def render_career_discovery_page() -> None:
         st.session_state.intake_step = 1
     if "intake_data" not in st.session_state:
         st.session_state.intake_data = {}
+
+    # Option to see existing progress & regenerate analysis
+    if st.session_state.get("analysis_generated"):
+        st.markdown("### ✨ Career Analysis Active")
+        st.info("You have already generated a personalized Career Analysis. You can view your results on the Dashboard or download your generated reports. If you wish to recalculate your path, you can regenerate it below.")
+        
+        data = st.session_state.get("intake_data", {})
+        st.markdown("#### 📋 Current Profile Details")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"**Education Level:** {data.get('education', 'N/A')}")
+            st.markdown(f"**Current Stage/Experience:** {data.get('current_year', 'N/A')}")
+            st.markdown(f"**Preferred Work Style:** {data.get('work_style', 'N/A')}")
+        with col2:
+            st.markdown(f"**Interests:** {data.get('interests', 'N/A')}")
+            st.markdown(f"**Skills:** {data.get('skills', 'N/A')}")
+            st.markdown(f"**Career Goals:** {data.get('goals', 'N/A')}")
+            
+        st.markdown("<div style='height: 25px;'></div>", unsafe_allow_html=True)
+        if st.button("🔄 Regenerate My Career Analysis", type="primary", use_container_width=True):
+            st.session_state.analysis_generated = False
+            st.session_state.intake_step = 1
+            st.rerun()
+        return
         
     # Page header with home button
     col_home, col_title = st.columns([1, 5])
@@ -179,8 +215,8 @@ def render_career_discovery_page() -> None:
             if st.button("🚀 Generate My Career Analysis", type="primary", use_container_width=True):
                 resume_text = None
                 if uploaded_file:
-                    # Mock resume text extraction (in real app, use PyPDF2 or similar)
-                    resume_text = "Extracted resume text would go here"
+                    from utils.pdf_extractor import extract_text_from_pdf
+                    resume_text = extract_text_from_pdf(uploaded_file)
                 
                 with st.spinner("CareerForge Engine is analyzing your profile and generating your personalized career path..."):
                     llm_service = LLMService()
@@ -191,6 +227,11 @@ def render_career_discovery_page() -> None:
                 db = DBService()
                 engine = MockCareerForgeEngine(llm_service, db)
                 result = engine.run_pipeline(st.session_state.intake_data, resume_text)
+                
+                # Automatically generate PDF report
+                from services.pdf_service import PDFService
+                pdf_svc = PDFService()
+                pdf_svc.compile_full_report(result, st.session_state.intake_data)
                     
                 st.session_state.analysis_result = result
                 st.session_state.analysis_generated = True

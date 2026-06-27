@@ -26,8 +26,16 @@ def render_career_planner_page() -> None:
         
     # Get result
     result = st.session_state.analysis_result
-    roadmap = result.get("planner", {}).get("roadmap", {})
+    planner_res = result.get("planner", {})
+    if not planner_res.get("success", False):
+        st.warning(planner_res.get("error", "Generation failed."))
+        return
+        
+    roadmap = planner_res.get("roadmap", {})
     
+    if planner_res.get("is_mock"):
+        st.warning("⚠️ Running in Offline Mode: Gemini API rate limit or key restriction hit. Showing adaptive mock roadmaps. Regenerate your analysis on the Career Discovery tab to attempt live pathfinding.")
+        
     # Render estimated timeline
     st.subheader("⏱️ Estimated Timeline")
     render_card(

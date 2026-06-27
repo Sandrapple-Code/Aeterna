@@ -102,63 +102,95 @@ def render_dashboard_page() -> None:
     # Career Readiness
     with col1:
         if analysis_generated and result:
-            cr_score = result.get("planner", {}).get("roadmap", {}).get("career_readiness_score", "Not Generated")
-            value = f"{cr_score}%" if isinstance(cr_score, (int, float)) else str(cr_score)
+            planner_res = result.get("planner", {})
+            if not planner_res.get("success", False):
+                st.warning(planner_res.get("error", "Generation failed."))
+            else:
+                cr_score = planner_res.get("roadmap", {}).get("career_readiness_score", "Not Generated")
+                value = f"{cr_score}%" if isinstance(cr_score, (int, float)) else str(cr_score)
+                render_stat_card(
+                    label="📊 Career Readiness",
+                    value=value
+                )
         else:
-            value = "Not Generated"
-        render_stat_card(
-            label="📊 Career Readiness",
-            value=value
-        )
+            render_stat_card(
+                label="📊 Career Readiness",
+                value="Not Generated"
+            )
             
     # Career Match
     with col2:
         if analysis_generated and result:
-            cm = result.get("discovery", {}).get("career_matches", {}).get("recommended_career", "Not Generated")
-            value = str(cm)
+            discovery_res = result.get("discovery", {})
+            if not discovery_res.get("success", False):
+                st.warning(discovery_res.get("error", "Generation failed."))
+            else:
+                cm = discovery_res.get("career_matches", {}).get("recommended_career", "Not Generated")
+                render_stat_card(
+                    label="🎯 Career Match",
+                    value=str(cm)
+                )
         else:
-            value = "Not Generated"
-        render_stat_card(
-            label="🎯 Career Match",
-            value=value
-        )
+            render_stat_card(
+                label="🎯 Career Match",
+                value="Not Generated"
+            )
             
     # Roadmap (link to Career Planner)
     with col3:
         if analysis_generated and result:
-            phases = result.get("planner", {}).get("roadmap", {}).get("phases", [])
-            roadmap_title = phases[0].get("title", "Not Generated") if phases else "Not Generated"
-            value = str(roadmap_title)
+            planner_res = result.get("planner", {})
+            if not planner_res.get("success", False):
+                st.warning(planner_res.get("error", "Generation failed."))
+            else:
+                phases = planner_res.get("roadmap", {}).get("phases", [])
+                roadmap_title = phases[0].get("title", "Not Generated") if phases else "Not Generated"
+                render_stat_card(
+                    label="🗺️ Roadmap",
+                    value=str(roadmap_title)
+                )
         else:
-            value = "Not Generated"
-        render_stat_card(
-            label="🗺️ Roadmap",
-            value=value
-        )
+            render_stat_card(
+                label="🗺️ Roadmap",
+                value="Not Generated"
+            )
             
     # Resume Analysis
     with col4:
         if analysis_generated and result and result.get("resume"):
-            match_score = result.get("resume", {}).get("structured_insights", {}).get("match_score", "No Resume Uploaded")
-            value = f"{match_score}%" if isinstance(match_score, (int, float)) else str(match_score)
+            resume_res = result.get("resume", {})
+            if not resume_res.get("success", False):
+                st.warning(resume_res.get("error", "Generation failed."))
+            else:
+                match_score = resume_res.get("structured_insights", {}).get("match_score", "No Resume Uploaded")
+                value = f"{match_score}%" if isinstance(match_score, (int, float)) else str(match_score)
+                render_stat_card(
+                    label="📄 Resume Analysis",
+                    value=value
+                )
         else:
-            value = "No Resume Uploaded"
-        render_stat_card(
-            label="📄 Resume Analysis",
-            value=value
-        )
+            render_stat_card(
+                label="📄 Resume Analysis",
+                value="No Resume Uploaded"
+            )
             
     # Latest Opportunities
     with col5:
         if analysis_generated and result:
-            jobs = result.get("opportunities", {}).get("opportunities", {}).get("jobs", [])
-            value = f"{len(jobs)} New Matches"
+            opp_res = result.get("opportunities", {})
+            if not opp_res.get("success", False):
+                st.warning(opp_res.get("error", "Generation failed."))
+            else:
+                jobs = opp_res.get("opportunities", {}).get("jobs", [])
+                render_stat_card(
+                    label="🌍 Latest Opportunities",
+                    value=f"{len(jobs)} New Matches"
+                )
         else:
-            value = "Not Generated"
-        render_stat_card(
-            label="🌍 Latest Opportunities",
-            value=value
-        )
+            render_stat_card(
+                label="🌍 Latest Opportunities",
+                value="Not Generated"
+            )
         
     # Quick Actions
     st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)

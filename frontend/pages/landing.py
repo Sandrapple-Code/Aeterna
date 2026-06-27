@@ -14,7 +14,7 @@ def render_landing_page() -> None:
     st.markdown("""
     <div style="text-align: center; padding: 80px 20px;">
         <div class="aeterna-badge" style="font-size: 0.85rem; margin-bottom: 24px;">🌌 Career Operating System</div>
-        <h1 style="font-size: 3.5rem; font-weight: 800; margin-bottom: 12px; background: linear-gradient(135deg, #38bdf8 0%, #a855f7 50%, #ec4899 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Outfit', sans-serif;">
+        <h1 class="aeterna-gradient-text" style="font-size: 3.5rem; font-weight: 800; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">
             Aeterna
         </h1>
         <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 16px; color: #f8fafc; font-family: 'Outfit', sans-serif;">
