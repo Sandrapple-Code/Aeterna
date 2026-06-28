@@ -13,6 +13,9 @@ def render_landing_page() -> None:
     # Hero Section
     st.markdown("""
     <div style="text-align: center; padding: 80px 20px;">
+        <img src="https://coresg-normal.trae.ai/api/ide/v1/text-to-image?prompt=Aeterna%20logo%20with%20futuristic%20dark%20purple%20blue%20theme%2C%20AI%20elements&image_size=square_hd" 
+             alt="Aeterna Logo" 
+             style="max-width: 300px; width: 100%; margin-bottom: 30px; border-radius: 16px;">
         <div class="aeterna-badge" style="font-size: 0.85rem; margin-bottom: 24px;">🌌 Career Operating System</div>
         <h1 class="aeterna-gradient-text" style="font-size: 3.5rem; font-weight: 800; margin-bottom: 12px; font-family: 'Outfit', sans-serif;">
             Aeterna

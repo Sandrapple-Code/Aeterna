@@ -52,7 +52,7 @@ def render_reports_page() -> None:
     
     for pdf_file in pdf_files:
         file_size = pdf_file.stat().st_size
-        col_name, col_size, col_download = st.columns([4, 1, 1])
+        col_name, col_size, col_download, col_delete = st.columns([4, 1, 1, 1])
         
         with col_name:
             st.markdown(f"**{pdf_file.name}**")
@@ -66,3 +66,9 @@ def render_reports_page() -> None:
                     file_name=pdf_file.name,
                     mime="application/pdf"
                 )
+        with col_delete:
+            if st.button("🗑️", key=f"delete_{pdf_file.name}"):
+                import os
+                os.remove(pdf_file)
+                st.success(f"Successfully deleted {pdf_file.name}")
+                st.rerun()

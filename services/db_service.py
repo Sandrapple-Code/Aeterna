@@ -15,7 +15,8 @@ class DBService:
         self._mock_db: Dict[str, Any] = {
             "users": {},
             "applications": {},
-            "interviews": {}
+            "interviews": {},
+            "chat_sessions": {}
         }
         logger.info(f"DBService initialized with connection URL: {self.settings.database_url}")
 
@@ -70,3 +71,30 @@ class DBService:
         self._mock_db["interviews"][session_id] = transcript
         # TODO: Implement database write
         return True
+
+    def save_chat_session(self, session_id: str, chat_history: List[Dict[str, str]]) -> bool:
+        """
+        Persists a chatbot conversation history.
+        """
+        logger.info(f"Saving chat history for session: {session_id}")
+        self._mock_db["chat_sessions"][session_id] = {
+            "id": session_id,
+            "history": chat_history,
+            "created_at": __import__("datetime").datetime.now().isoformat()
+        }
+        # TODO: Implement database write
+        return True
+
+    def get_chat_session(self, session_id: str) -> Dict[str, Any] | None:
+        """
+        Retrieves a chat session by ID.
+        """
+        logger.info(f"Retrieving chat session: {session_id}")
+        return self._mock_db["chat_sessions"].get(session_id)
+
+    def list_chat_sessions(self) -> List[Dict[str, Any]]:
+        """
+        Lists all saved chat sessions.
+        """
+        logger.info("Listing all chat sessions")
+        return list(self._mock_db["chat_sessions"].values())
