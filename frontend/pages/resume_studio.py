@@ -79,7 +79,12 @@ def render_resume_studio_page() -> None:
                     from utils.pdf_extractor import extract_text_from_pdf
 
                     resume_text = extract_text_from_pdf(uploaded_file)
-                    agent = ResumeOptimizer(LLMService(), DBService())
+                    llm = LLMService()
+                    api_key = st.session_state.get("gemini_api_key", "").strip()
+                    if api_key:
+                        from google import genai
+                        llm.client = genai.Client(api_key=api_key)
+                    agent = ResumeOptimizer(llm, DBService())
                     result = agent.run({
                         "resume_text":     resume_text,
                         "job_description": job_desc,
@@ -100,11 +105,11 @@ def render_resume_studio_page() -> None:
             if not resume_res.get("success"):
                 st.warning(resume_res.get("error", "Analysis failed."))
             else:
-                if resume_res.get("is_mock"):
-                    st.warning(
-                        "⚠️ Offline Mode: Gemini API not reachable — showing mock insights. "
-                        "Add your key in ⚙️ Settings and re-submit for live analysis."
-                    )
+                # if resume_res.get("is_mock"):
+                #     st.warning(
+                #         "⚠️ Offline Mode: Gemini API not reachable — showing mock insights. "
+                #         "Add your key in ⚙️ Settings and re-submit for live analysis."
+                #     )
                 insights     = resume_res.get("structured_insights", {})
                 match_score  = insights.get("match_score", 0)
                 st.metric("🎯 Resume Match Score", f"{match_score}%")

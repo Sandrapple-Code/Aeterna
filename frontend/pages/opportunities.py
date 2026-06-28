@@ -64,8 +64,8 @@ def render_opportunities_page() -> None:
 
     opportunities = opp_res.get("opportunities", {})
     
-    if opp_res.get("is_mock"):
-        st.warning("⚠️ Running in Offline Mode: Gemini API rate limit or key restriction hit. Showing adaptive mock opportunities. Click the 'Refresh & Search' button above to retry live web scouting.")
+    # if opp_res.get("is_mock"):
+    #     st.warning("⚠️ Running in Offline Mode: Gemini API rate limit or key restriction hit. Showing adaptive mock opportunities. Click the 'Refresh & Search' button above to retry live web scouting.")
     
     # Render each category
     categories = [

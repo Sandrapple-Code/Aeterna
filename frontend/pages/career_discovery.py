@@ -13,7 +13,12 @@ from agents.opportunity_agent import OpportunityAgent
 
 def _make_llm() -> LLMService:
     """Always returns an LLMService that picks up the current session API key."""
-    return LLMService()
+    llm = LLMService()
+    api_key = st.session_state.get("gemini_api_key", "").strip()
+    if api_key:
+        from google import genai
+        llm.client = genai.Client(api_key=api_key)
+    return llm
 
 
 class CareerForgeEngine:

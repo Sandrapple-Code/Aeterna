@@ -33,8 +33,8 @@ def render_career_planner_page() -> None:
         
     roadmap = planner_res.get("roadmap", {})
     
-    if planner_res.get("is_mock"):
-        st.warning("⚠️ Running in Offline Mode: Gemini API rate limit or key restriction hit. Showing adaptive mock roadmaps. Regenerate your analysis on the Career Discovery tab to attempt live pathfinding.")
+    # if planner_res.get("is_mock"):
+    #     st.warning("⚠️ Running in Offline Mode: Gemini API rate limit or key restriction hit. Showing adaptive mock roadmaps. Regenerate your analysis on the Career Discovery tab to attempt live pathfinding.")
         
     # Render estimated timeline
     st.subheader("⏱️ Estimated Timeline")

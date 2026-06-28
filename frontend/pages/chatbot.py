@@ -88,15 +88,7 @@ def render_chatbot_page() -> None:
 
     st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
 
-    # ── API key status ────────────────────────────────────────────────────────
-    api_key = st.session_state.get("gemini_api_key", "").strip()
-    if not api_key:
-        st.warning(
-            "⚠️ No Gemini API key configured — chatbot is in offline mode. "
-            "Enter your key under ⚙️ Settings to unlock full AI responses."
-        )
-    else:
-        st.success("✅ Gemini API connected — full AI responses active.")
+    # ── API key status removed ────────────────────────────────────────────────
 
     # ── Handle redirect query from Opportunities page ─────────────────────────
     incoming = st.session_state.pop("chatbot_query", None)
