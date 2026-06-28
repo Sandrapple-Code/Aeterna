@@ -3,6 +3,63 @@
 Powered by the **CareerForge Engine**, **Aeterna** is a production-ready, AI-powered career optimization and management suite. It serves as a comprehensive cockpit for job seekers, helping them optimize their resume and chart their long-term career progression.
 
 ---
+✨ Features
+🤖 AI-Powered Career Analysis
+🧭 Personalized Career Roadmap
+📄 Resume Optimization
+🎤 AI Interview Coach
+📊 Career Readiness Dashboard
+📑 Career Readiness Report
+🔑 Bring Your Own Gemini API Key (BYOK)
+
+🧠 AI Agents
+Career Discovery Agent – Analyzes user profile and identifies suitable career paths.
+Career Planner Agent – Generates a personalized learning roadmap and skill recommendations.
+Resume Optimizer Agent – Reviews resumes and suggests ATS-friendly improvements.
+Interview Coach Agent – Generates role-specific interview questions using Gemini AI.
+Report Generator – Consolidates all insights into a final career report.
+
+🛠 Tech Stack
+Category	Technology
+Language	Python
+Frontend	Streamlit
+Backend	Python Modular Architecture
+AI Model	Google Gemini API
+Version Control	Git & GitHub
+Development Tools	Antigravity IDE, Trae AI, VS Code
+
+🚀 Getting Started
+# Clone the repository
+git clone https://github.com/<your-username>/Aeterna.git
+
+# Navigate to the project
+cd Aeterna
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+streamlit run app.py
+
+📌 Workflow
+Landing Page
+      ↓
+Configure Gemini API
+      ↓
+Career Analysis
+      ↓
+AI Agents
+      ↓
+Career Dashboard
+      ↓
+Career Readiness Report
+
+👨‍💻 Developer
+
+**Sanskriti Shakya**
+AI & Machine Learning Enthusiast 
+
+Aeterna is designed to simplify career planning by combining AI-driven insights, personalized guidance, and an intuitive user experience into one unified Career Operating System.
 
 ## 🏗️ Project Architecture
 
@@ -140,4 +197,5 @@ Aeterna is fully prepared for zero-configuration deployment on **Streamlit Commu
 ## 📄 License
 This project is proprietary and confidential. Powered by the **CareerForge Engine**.
 
-This is a test from Trae.
+
+
