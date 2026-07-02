@@ -191,8 +191,10 @@ Aeterna is fully prepared for zero-configuration deployment on **Streamlit Commu
    SECRET_KEY = "your_secure_production_secret"
    ```
 5. Click **Deploy!**
-
+   
 ---
+
+6. Streamlit Deployment link: https://aeternagit-kjdl9ezysyvndsm6urpfkr.streamlit.app/
 
 ## 📄 License
 This project is proprietary and confidential. Powered by the **CareerForge Engine**.
