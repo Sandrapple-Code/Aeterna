@@ -194,7 +194,7 @@ Aeterna is fully prepared for zero-configuration deployment on **Streamlit Commu
    
 ---
 
-6. Streamlit Deployment link: https://aeternagit-kjdl9ezysyvndsm6urpfkr.streamlit.app/
+## Streamlit Deployment link: https://aeternagit-kjdl9ezysyvndsm6urpfkr.streamlit.app/
 
 ## 📄 License
 This project is proprietary and confidential. Powered by the **CareerForge Engine**.
